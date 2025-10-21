@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableJpaRepositories
+@EnableJpaRepositories  
 @EnableCaching
 @EnableDiscoveryClient
 public class WaiterServiceApplication implements WebMvcConfigurer {

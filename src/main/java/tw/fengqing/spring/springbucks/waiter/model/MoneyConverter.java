@@ -23,4 +23,4 @@ public class MoneyConverter implements AttributeConverter<Money, Long> {
     public Money convertToEntityAttribute(Long dbData) {
         return dbData == null ? null : Money.ofMinor(CurrencyUnit.of("TWD"), dbData);
     }
-} 
+}

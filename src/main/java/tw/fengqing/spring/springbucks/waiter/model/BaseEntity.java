@@ -26,7 +26,6 @@ import java.util.Date;
 // 所以這個 Ignore 註解就不需要再加了，程式碼更簡潔，維護也更方便。
 //@JsonIgnoreProperties(value = {"hibernateLazyInitializer"})
 public class BaseEntity implements Serializable {
-    
     private static final long serialVersionUID = 1L;
     
     @Id

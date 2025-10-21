@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class CoffeeService {
     @Autowired
     private CoffeeRepository coffeeRepository;
 
+    @CacheEvict(allEntries = true)
     public Coffee saveCoffee(String name, Money price) {
         return coffeeRepository.save(Coffee.builder().name(name).price(price).build());
     }
