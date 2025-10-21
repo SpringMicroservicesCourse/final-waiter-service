@@ -1,250 +1,488 @@
-# SpringBucks 服務員微服務 ⚡
+# final-waiter-service
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
+> SpringBucks Waiter Service - Complete microservice integration with distributed tracing, service discovery, caching, rate limiting, and message-driven architecture
+
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2024.0.2-blue.svg)](https://spring.io/projects/spring-cloud)
-[![Docker](https://img.shields.io/badge/Docker-Containerized-blue.svg)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Zipkin](https://img.shields.io/badge/Zipkin-Enabled-blue.svg)](https://zipkin.io/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 專案介紹
+The final integrated version of SpringBucks waiter service, demonstrating a complete microservice architecture with distributed tracing (Zipkin), service discovery (Consul), caching (Redis), rate limiting (Resilience4j), and message-driven communication (RabbitMQ).
 
-本專案為 SpringBucks 咖啡店系統的服務員微服務，負責處理咖啡產品管理、訂單處理、以及與其他微服務的整合。此服務整合了服務鏈路追蹤、服務發現、快取機制等現代微服務架構的核心功能，並支援 Docker 容器化部署。
+## Features
 
-**核心功能：**
-- **咖啡產品管理**：新增、查詢、批量匯入咖啡產品資訊
-- **訂單處理**：建立與管理咖啡訂單，支援多種咖啡組合
-- **服務註冊與發現**：自動向 Consul 服務註冊中心註冊服務實例
-- **鏈路追蹤**：整合 Zipkin 進行分散式鏈路追蹤
-- **快取機制**：使用 Redis 提供高效能的資料快取服務
-- **健康監控**：整合 Actuator 提供完整的服務健康檢查與監控指標
+- **Coffee & Order Management**: Complete CRUD operations for coffee products and orders
+- **Distributed Tracing**: HTTP-based Zipkin tracing integration (Micrometer Tracing)
+- **Service Discovery**: Automatic service registration with Consul
+- **Redis Caching**: High-performance caching with `@CacheConfig` annotation
+- **Rate Limiting**: Resilience4j rate limiter for coffee and order endpoints
+- **Message-Driven**: Spring Cloud Stream + RabbitMQ for async communication
+- **Docker Support**: One-command deployment with Docker Compose
+- **Health Monitoring**: Custom health indicators + Actuator endpoints
+- **Prometheus Integration**: Metrics exportation for monitoring
 
-> 💡 **為什麼選擇此微服務架構？**
-> - 完整的微服務生態系統整合，包含服務發現、鏈路追蹤、快取等
-> - 支援 Docker 容器化部署，便於 DevOps 實踐
-> - 採用領域驅動設計（DDD）原則，業務邏輯清晰分離
-> - 整合現代化監控與可觀測性工具
+## Tech Stack
 
-### 🎯 專案特色
+- **Spring Boot 3.4.5** + **Spring Cloud 2024.0.2**
+- **Micrometer Tracing + Brave Bridge** (replacing Spring Cloud Sleuth)
+- **Zipkin** (HTTP reporter for distributed tracing)
+- **Spring Cloud Consul** (Service discovery and config)
+- **Spring Data JPA** + **MariaDB 11.8.3**
+- **Spring Data Redis** (Caching layer)
+- **Spring Cloud Stream** + **RabbitMQ** (Message-driven)
+- **Resilience4j** (Rate limiting)
+- **Joda Money 2.0.2** (Monetary calculations)
+- **Lombok** + **Java 21**
 
-- **微服務架構**：完整的服務註冊與發現機制，支援 Consul 整合
-- **鏈路追蹤**：整合 Zipkin 進行分散式系統的請求追蹤
-- **高效能快取**：使用 Redis 實現多層快取策略，大幅提升查詢效能
-- **容器化部署**：支援 Docker 打包與部署，便於環境一致性
-- **精確金額處理**：使用 Joda Money 確保財務計算的準確性
-- **監控整合**：支援 Prometheus 指標收集與健康檢查
-
-## 技術棧
-
-### 核心框架
-- **Spring Boot 3.4.5** - 主框架，提供自動配置與生產就緒功能
-- **Spring Cloud 2024.0.2** - 微服務框架，提供服務註冊與發現等功能
-- **Spring Data JPA** - 資料持久層框架，簡化資料庫操作
-- **Spring Cache** - 宣告式快取抽象層
-- **Spring Data Redis** - Redis 整合與操作框架
-
-### 微服務與監控
-- **Consul** - 服務註冊與發現中心
-- **Zipkin** - 分散式鏈路追蹤系統
-- **Micrometer** - 應用程式指標收集
-- **Spring Cloud Stream** - 訊息驅動微服務框架
-
-### 資料庫與快取
-- **MariaDB** - 主要資料庫
-- **Redis** - 快取與會話儲存
-- **RabbitMQ** - 訊息佇列系統
-
-### 開發工具與輔助
-- **Lombok** - 減少樣板程式碼
-- **Joda Money** - 專業的金錢計算和型態轉換
-- **Docker** - 容器化部署
-- **Maven** - 專案建構與依賴管理
-
-## 專案結構
+## Architecture
 
 ```
-final-waiter-service/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── tw/fengqing/spring/springbucks/waiter/
-│   │   │       ├── WaiterServiceApplication.java          # 主要應用程式入口
-│   │   │       ├── controller/                           # 控制器層
-│   │   │       │   ├── CoffeeController.java            # 咖啡產品控制器
-│   │   │       │   └── OrderController.java             # 訂單控制器
-│   │   │       ├── model/                               # 資料模型
-│   │   │       │   ├── Coffee.java                     # 咖啡實體
-│   │   │       │   ├── CoffeeOrder.java                # 咖啡訂單實體
-│   │   │       │   └── OrderState.java                 # 訂單狀態枚舉
-│   │   │       ├── repository/                         # 資料存取層
-│   │   │       │   ├── CoffeeRepository.java           # 咖啡資料存取
-│   │   │       │   └── CoffeeOrderRepository.java      # 訂單資料存取
-│   │   │       ├── service/                            # 業務邏輯層
-│   │   │       │   ├── CoffeeService.java              # 咖啡業務邏輯
-│   │   │       │   └── CoffeeOrderService.java        # 訂單業務邏輯
-│   │   │       ├── integration/                       # 整合層
-│   │   │       │   ├── Barista.java                   # 咖啡師服務整合
-│   │   │       │   └── Customer.java                  # 客戶服務整合
-│   │   │       └── controller/                        # 效能監控
-│   │   │           └── PerformanceInteceptor.java    # 效能攔截器
-│   │   └── resources/
-│   │       ├── application.properties                  # 應用程式配置
-│   │       └── bootstrap.properties                    # 啟動配置
-│   └── test/
-├── Dockerfile                                          # Docker 建構檔案
-├── pom.xml                                            # Maven 專案配置
-└── README.md                                          # 專案說明文件
+┌─────────────────────────────────────────────────────────────┐
+│                   final-waiter-service                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │  Controller  │  │   Service    │  │  Repository  │      │
+│  │  (REST API)  │→ │  (@Cacheable)│→ │    (JPA)     │      │
+│  └─────────────┘  └──────────────┘  └──────────────┘      │
+│         ↓                ↓                    ↓              │
+│  ┌─────────────────────────────────────────────────┐       │
+│  │           Infrastructure Dependencies           │       │
+│  ├─────────────────────────────────────────────────┤       │
+│  │ Consul     │ Redis      │ MariaDB    │ RabbitMQ│       │
+│  │ (8500)     │ (6379)     │ (3306)     │ (5672)  │       │
+│  ├────────────┴────────────┴────────────┴─────────┤       │
+│  │                  Zipkin (9411)                  │       │
+│  │          (HTTP Tracing Reporter)                │       │
+│  └─────────────────────────────────────────────────┘       │
+│                                                               │
+│  Key Features:                                               │
+│  ✓ @RateLimiter("coffee")   - 5 requests/30s                │
+│  ✓ @RateLimiter("order")    - 3 requests/30s                │
+│  ✓ @CacheConfig("CoffeeCache") - Redis 60s TTL              │
+│  ✓ StreamBridge.send()      - Dynamic message routing       │
+│  ✓ Custom Health Indicators - Coffee count monitoring       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 快速開始
+## Getting Started
 
-### 前置需求
-- **Java 21** - 最新 LTS 版本的 Java
-- **Maven 3.6+** - 專案建構工具
-- **Docker** - 容器化部署（選用）
-- **MariaDB** - 資料庫（或使用 Docker 容器）
-- **Redis** - 快取服務（或使用 Docker 容器）
-- **Consul** - 服務註冊中心（或使用 Docker 容器）
+### Prerequisites
 
-### 安裝與執行
+- **JDK 21** or higher
+- **Maven 3.8+** (or use included wrapper)
+- **Docker** + **Docker Compose** (for complete system deployment)
 
-1. **克隆此倉庫：**
+### Quick Start (Docker Compose - Recommended)
+
+**Step 1: Build Docker Images**
+
 ```bash
-git clone https://github.com/username/springbucks-microservices.git
+# Navigate to Chapter 16 directory
+cd "Chapter 16 服務鏈路追蹤"
+
+# Build waiter-service image
+cd final-waiter-service
+mvn clean package -DskipTests
+# Output: springbucks/final-waiter-service:0.0.1-SNAPSHOT
+
+# Build customer-service image
+cd ../final-customer-service
+mvn clean package -DskipTests
+
+# Build barista-service image
+cd ../final-barista-service
+mvn clean package -DskipTests
+
+# Return to Chapter 16 directory
+cd ..
 ```
 
-2. **進入專案目錄：**
-```bash
-cd Chapter\ 16\ 服務鏈路追蹤/final-waiter-service
-```
+**Step 2: Start Complete System (9 Containers)**
 
-3. **編譯專案：**
 ```bash
-mvn clean compile
-```
-
-4. **執行應用程式：**
-```bash
-mvn spring-boot:run
-```
-
-### Docker 部署
-
-1. **建構 Docker 映像檔：**
-```bash
-mvn clean package dockerfile:build
-```
-
-2. **執行 Docker 容器：**
-```bash
-docker run -p 8080:8080 springbucks/final-waiter-service:0.0.1-SNAPSHOT
-```
-
-3. **使用 Docker Compose 啟動完整環境：**
-```bash
-cd Chapter\ 16\ 服務鏈路追蹤
+# Start all services
 docker-compose up -d
+
+# Check container status
+docker-compose ps
+
+# Expected output:
+# - mariadb-final-spring-course          (Up)
+# - redis-final-spring-course            (Up)
+# - consul-final-spring-course           (Up - port 8500)
+# - rabbitmq-final-spring-course         (Up - port 15672)
+# - zipkin-final-spring-course           (Up - port 9411)
+# - final-waiter-service                 (Up - port 8080)
+# - final-barista-service                (Up)
+# - final-customer-service-8090          (Up - port 8090)
+# - final-customer-service-9090          (Up - port 9090)
 ```
 
-## 進階說明
+**Step 3: Verify Services**
 
-### 環境變數
-```properties
-# 資料庫配置
-SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/springbucks
-SPRING_DATASOURCE_USERNAME=springbucks
-SPRING_DATASOURCE_PASSWORD=springbucks
+```bash
+# Check Consul UI
+open http://localhost:8500
 
-# Redis 配置
-SPRING_REDIS_HOST=localhost
-SPRING_REDIS_PORT=6379
+# Check RabbitMQ Management
+open http://localhost:15672
+# Login: spring / spring
 
-# Consul 配置
-SPRING_CLOUD_CONSUL_HOST=localhost
-SPRING_CLOUD_CONSUL_PORT=8500
+# Check Zipkin UI
+open http://localhost:9411
 
-# Zipkin 配置
-MANAGEMENT_TRACING_ENDPOINT=http://localhost:9411/api/v2/spans
+# Check waiter-service health
+curl http://localhost:8080/actuator/health
 ```
 
-### 設定檔說明
-```properties
-# application.properties 主要設定
-spring.application.name=waiter-service
-spring.datasource.url=${SPRING_DATASOURCE_URL}
-spring.jpa.hibernate.ddl-auto=update
+### Standalone Execution (Development)
 
-# Redis 快取配置
+**Prerequisites: Start Infrastructure**
+
+```bash
+# Start Consul
+docker run -d --name consul -p 8500:8500 consul:1.4.5
+
+# Start MariaDB
+docker run -d --name mariadb \
+  -e MYSQL_DATABASE=springbucks \
+  -e MYSQL_USER=springbucks \
+  -e MYSQL_PASSWORD=springbucks \
+  -e MYSQL_ROOT_PASSWORD=root_password \
+  -p 3306:3306 mariadb:11.8.3
+
+# Start Redis
+docker run -d --name redis -p 6379:6379 redis
+
+# Start RabbitMQ
+docker run -d --name rabbitmq \
+  -e RABBITMQ_DEFAULT_USER=spring \
+  -e RABBITMQ_DEFAULT_PASS=spring \
+  -p 5672:5672 -p 15672:15672 \
+  rabbitmq:4.1.4-management
+
+# Start Zipkin
+docker run -d --name zipkin -p 9411:9411 openzipkin/zipkin:3-arm64
+```
+
+**Run Application**
+
+```bash
+# Update application.properties for localhost connections
+# Then run:
+./mvnw spring-boot:run
+```
+
+## API Documentation
+
+### Coffee Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/coffee/` | List all coffees (Redis cached) |
+| GET | `/coffee/{id}` | Get coffee by ID |
+| POST | `/coffee` | Create new coffee |
+| PUT | `/coffee/{id}` | Update coffee |
+
+**Example: Query Coffees (with caching)**
+
+```bash
+# First request - from database
+curl http://localhost:8080/coffee/
+
+# Second request - from Redis cache (within 60s)
+curl http://localhost:8080/coffee/
+```
+
+### Order Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/order/` | List all orders |
+| GET | `/order/{id}` | Get order by ID |
+| POST | `/order/` | Create new order |
+| PUT | `/order/{id}` | Update order state |
+
+**Example: Create Order**
+
+```bash
+curl -X POST http://localhost:8080/order/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer": "test-user",
+    "items": ["espresso", "latte"]
+  }'
+```
+
+## Configuration Highlights
+
+### Resilience4j Rate Limiting
+
+```properties
+# Coffee endpoint: 5 requests per 30 seconds
+resilience4j.ratelimiter.instances.coffee.limit-for-period=5
+resilience4j.ratelimiter.instances.coffee.limit-refresh-period-in-millis=30000
+resilience4j.ratelimiter.instances.coffee.timeout-in-millis=5000
+
+# Order endpoint: 3 requests per 30 seconds
+resilience4j.ratelimiter.instances.order.limit-for-period=3
+resilience4j.ratelimiter.instances.order.limit-refresh-period-in-millis=30000
+```
+
+### Redis Caching Strategy
+
+```properties
 spring.cache.type=redis
-spring.cache.redis.time-to-live=600000
+spring.cache.redis.time-to-live=60000  # 60 seconds TTL
+spring.cache.redis.cache-null-values=false
 
-# 服務發現配置
-spring.cloud.consul.discovery.service-name=${spring.application.name}
-spring.cloud.consul.discovery.health-check-interval=10s
+# Note: Actual cache name is defined by @CacheConfig annotation
+# @CacheConfig(cacheNames = "CoffeeCache")
+# Redis Key: CoffeeCache::SimpleKey []
 ```
 
-## API 端點
+### Zipkin Tracing (HTTP Reporter)
 
-### 咖啡產品管理
-- `GET /coffee` - 查詢所有咖啡產品
-- `GET /coffee/{id}` - 查詢特定咖啡產品
-- `POST /coffee` - 新增咖啡產品
-- `PUT /coffee/{id}` - 更新咖啡產品
+```properties
+# HTTP-based tracing reporter (waiter-service uses HTTP, not RabbitMQ)
+management.zipkin.tracing.endpoint=http://zipkin-final-spring-course:9411/api/v2/spans
+management.tracing.sampling.probability=1.0  # 100% sampling (dev environment)
 
-### 訂單管理
-- `GET /order` - 查詢所有訂單
-- `GET /order/{id}` - 查詢特定訂單
-- `POST /order` - 建立新訂單
-- `PUT /order/{id}/state` - 更新訂單狀態
+# Production recommendation: 0.1 (10% sampling)
+```
 
-### 監控端點
-- `GET /actuator/health` - 健康檢查
-- `GET /actuator/metrics` - 應用程式指標
-- `GET /actuator/prometheus` - Prometheus 指標
+### Spring Cloud Stream Bindings
 
-## 參考資源
+```properties
+# Consumer: Receive finished orders from barista-service
+spring.cloud.stream.bindings.finishedOrders-in-0.destination=finishedOrders
+spring.cloud.stream.bindings.finishedOrders-in-0.group=waiter-service
 
-- [Spring Boot 官方文件](https://spring.io/projects/spring-boot)
-- [Spring Cloud 官方文件](https://spring.io/projects/spring-cloud)
-- [Consul 官方文件](https://www.consul.io/docs)
-- [Zipkin 官方文件](https://zipkin.io/)
-- [Redis 官方文件](https://redis.io/docs)
+# Producer: Send new orders to barista-service
+spring.cloud.stream.bindings.newOrders-out-0.destination=newOrders
 
-## 注意事項與最佳實踐
+# Producer: Notify customers with routing key (SpEL expression)
+spring.cloud.stream.bindings.notifyOrders-out-0.destination=notifyOrders
+spring.cloud.stream.rabbit.bindings.notifyOrders-out-0.producer.routing-key-expression=headers.customer
+```
 
-### ⚠️ 重要提醒
+## Monitoring & Observability
 
-| 項目 | 說明 | 建議做法 |
-|------|------|----------|
-| 資料庫連線 | 使用連線池管理 | 設定適當的連線池大小 |
-| 快取策略 | Redis 快取管理 | 設定合理的 TTL 時間 |
-| 服務發現 | Consul 健康檢查 | 定期檢查服務健康狀態 |
-| 鏈路追蹤 | Zipkin 採樣率 | 生產環境調整採樣率以降低效能影響 |
+### Distributed Tracing with Zipkin
 
-### 🔒 最佳實踐指南
+```bash
+# View trace in Zipkin UI
+open http://localhost:9411
 
-- **效能優化**：使用 Redis 快取提升查詢效能，設定適當的快取策略
-- **監控告警**：整合 Prometheus 和 Grafana 進行系統監控
-- **錯誤處理**：實作完整的例外處理機制，提供友善的錯誤訊息
-- **安全性**：使用環境變數管理敏感資訊，避免硬編碼
-- **容器化**：使用 Docker 確保環境一致性，便於部署和擴展
+# Search traces by service name
+curl "http://localhost:9411/api/v2/traces?serviceName=waiter-service&limit=10" | jq
 
-## 授權說明
+# Example trace flow:
+# customer-service (POST /customer/order)
+#   → waiter-service (POST /order/)        [Trace ID: abc123]
+#     → waiter-service (PUT /order/{id})
+#       → RabbitMQ (newOrders)
+#         → barista-service (process)
+#           → RabbitMQ (finishedOrders)
+#             → waiter-service (update)
+#               → RabbitMQ (notifyOrders)
+#                 → customer-service (notify)
+```
 
-本專案採用 MIT 授權條款，詳見 LICENSE 檔案。
+### Health Check & Actuator
 
-## 關於我們
+```bash
+# Custom health indicator (coffee count)
+curl http://localhost:8080/actuator/health | jq '.components.coffee'
 
-我們主要專注在敏捷專案管理、物聯網（IoT）應用開發和領域驅動設計（DDD）。喜歡把先進技術和實務經驗結合，打造好用又靈活的軟體解決方案。
+# Prometheus metrics
+curl http://localhost:8080/actuator/prometheus
 
-## 聯繫我們
+# Rate limiter metrics
+curl http://localhost:8080/actuator/metrics/resilience4j.ratelimiter.available.permissions
+```
 
-- **FB 粉絲頁**：[風清雲談 | Facebook](https://www.facebook.com/profile.php?id=61576838896062)
-- **LinkedIn**：[linkedin.com/in/chu-kuo-lung](https://www.linkedin.com/in/chu-kuo-lung)
-- **YouTube 頻道**：[雲談風清 - YouTube](https://www.youtube.com/channel/UCXDqLTdCMiCJ1j8xGRfwEig)
-- **風清雲談 部落格**：[風清雲談](https://blog.fengqing.tw/)
-- **電子郵件**：[fengqing.tw@gmail.com](mailto:fengqing.tw@gmail.com)
+### Redis Cache Monitoring
+
+```bash
+# Connect to Redis container
+docker exec -it final-spring-course-redis-final-spring-course-1 redis-cli
+
+# Check cache keys
+127.0.0.1:6379> KEYS CoffeeCache::*
+1) "CoffeeCache::SimpleKey []"
+
+# Check TTL
+127.0.0.1:6379> TTL "CoffeeCache::SimpleKey []"
+(integer) 59
+
+# Delete cache (for testing)
+127.0.0.1:6379> DEL "CoffeeCache::SimpleKey []"
+```
+
+## Message Flow
+
+```
+┌──────────────────┐  HTTP POST    ┌──────────────────┐
+│ customer-service │──────────────→│  waiter-service  │
+│     (8090)       │               │      (8080)      │
+└──────────────────┘               └──────────────────┘
+                                            │
+                                            │ StreamBridge.send
+                                            ↓
+                                   ┌──────────────────┐
+                                   │    RabbitMQ      │
+                                   │  (newOrders)     │
+                                   └──────────────────┘
+                                            │
+                                            │ Consumer
+                                            ↓
+                                   ┌──────────────────┐
+                                   │ barista-service  │
+                                   │     (8070)       │
+                                   └──────────────────┘
+                                            │
+                                            │ StreamBridge.send
+                                            ↓
+                                   ┌──────────────────┐
+                                   │    RabbitMQ      │
+                                   │ (finishedOrders) │
+                                   └──────────────────┘
+                                            │
+                                            │ Consumer
+                                            ↓
+                                   ┌──────────────────┐
+                                   │  waiter-service  │
+                                   │  (update order)  │
+                                   └──────────────────┘
+                                            │
+                                            │ StreamBridge.send
+                                            │ routing-key=customer
+                                            ↓
+                                   ┌──────────────────┐
+                                   │    RabbitMQ      │
+                                   │  (notifyOrders)  │
+                                   └──────────────────┘
+                                            │
+                                            │ Consumer (filtered)
+                                            ↓
+                                   ┌──────────────────┐
+                                   │ customer-service │
+                                   │  (notification)  │
+                                   └──────────────────┘
+```
+
+## Performance Optimization
+
+### Health Check Optimization
+
+**Issue**: `CoffeeIndicator` triggers `SELECT COUNT(*)` every 10 seconds (Consul health check interval)
+
+**Solutions**:
+
+1. **Disable SQL Logging**:
+```properties
+spring.jpa.properties.hibernate.show_sql=false
+```
+
+2. **Add Caching**:
+```java
+@Cacheable(value = "coffeeHealthCheck", unless = "#result == null")
+public Health health() {
+    // Health check logic
+}
+```
+
+## Best Practices
+
+### Rate Limiting Recommendations
+
+| Environment | coffee.limit | order.limit | Reasoning |
+|-------------|--------------|-------------|-----------|
+| **Development** | 5/30s | 3/30s | Current setting (easy testing) |
+| **Production** | 100/30s | 50/30s | Allow higher throughput |
+| **Public API** | 10/60s | 5/60s | Prevent abuse |
+
+### Caching Strategy
+
+```java
+// Cache configuration priority:
+// 1. @CacheConfig(cacheNames = "CoffeeCache")  ← Highest (Code level)
+// 2. @Cacheable(cacheNames = "...")           ← Method level
+// 3. spring.cache.cache-names=coffee          ← Lowest (Config level)
+
+// Recommendation: Use @CacheConfig for consistency
+```
+
+### Zipkin Sampling
+
+```properties
+# Development: 100% sampling
+management.tracing.sampling.probability=1.0
+
+# Production: 5-10% sampling (reduce performance impact)
+management.tracing.sampling.probability=0.1
+```
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **Port 8080 already in use** | `lsof -ti:8080 \| xargs kill -9` |
+| **Cannot connect to MariaDB** | Check container: `docker ps \| grep mariadb` |
+| **Redis cache not working** | Verify Redis connection: `redis-cli PING` |
+| **Zipkin trace not showing** | Check sampling rate & endpoint URL |
+| **RabbitMQ message not received** | Verify queue binding in RabbitMQ UI |
+
+### Logs Analysis
+
+```bash
+# View full logs (with timestamps)
+docker logs -f final-spring-course-final-waiter-service-1
+
+# Filter specific operations
+docker logs final-spring-course-final-waiter-service-1 | grep "Receive new Order"
+
+# Check Hibernate SQL queries
+docker logs final-spring-course-final-waiter-service-1 | grep "Hibernate:"
+```
+
+## Comparison with Other Projects
+
+| Project | Tracing | Discovery | Cache | Rate Limiting | Messages |
+|---------|---------|-----------|-------|---------------|----------|
+| **final-waiter** | ✅ HTTP | ✅ Consul | ✅ Redis | ✅ RateLimiter | ✅ Producer+Consumer |
+| **git-config-waiter** | ❌ | ✅ Consul | ✅ Redis | ✅ RateLimiter | ❌ |
+| **busy-waiter** | ❌ | ✅ Consul | ✅ Redis | ✅ RateLimiter | ✅ Producer |
+
+## References
+
+- [Micrometer Tracing Documentation](https://micrometer.io/docs/tracing)
+- [Spring Boot 3.x Observability](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)
+- [Zipkin Official Docs](https://zipkin.io/)
+- [Resilience4j Rate Limiter](https://resilience4j.readme.io/docs/ratelimiter)
+- [Spring Cloud Stream](https://spring.io/projects/spring-cloud-stream)
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contact
+
+We focus on Agile Project Management, IoT application development, and Domain-Driven Design (DDD), combining advanced technologies with practical experience to create flexible software solutions.
+
+- **Facebook**: [風清雲談](https://www.facebook.com/profile.php?id=61576838896062)
+- **LinkedIn**: [linkedin.com/in/chu-kuo-lung](https://www.linkedin.com/in/chu-kuo-lung)
+- **YouTube**: [雲談風清](https://www.youtube.com/channel/UCXDqLTdCMiCJ1j8xGRfwEig)
+- **Blog**: [風清雲談](https://blog.fengqing.tw/)
+- **Email**: [fengqing.tw@gmail.com](mailto:fengqing.tw@gmail.com)
 
 ---
 
-**📅 最後更新：2025-01-27**  
-**👨‍💻 維護者：風清雲談團隊**
+**Last Updated**: 2025-10-21  
+**Maintainer**: FengQing Team
