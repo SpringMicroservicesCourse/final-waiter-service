@@ -1073,6 +1073,90 @@ curl http://localhost:8080/order/$ORDER_ID | jq '.state'
 ./mvnw clean test jacoco:report
 ```
 
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **Rate Limiter rejects requests** | Wait 30s for quota reset or increase `limit-for-period` |
+| **Redis connection fails** | Check Redis is running: `docker ps \| grep redis` |
+| **Database connection fails** | Verify MariaDB is running and credentials are correct |
+| **RabbitMQ message not received** | Check exchange bindings in RabbitMQ UI (port 15672) |
+| **Zipkin spans not visible** | Verify Zipkin endpoint: `http://localhost:9411` |
+
+### Rate Limiter 限流檢查
+
+**查詢 Rate Limiter 狀態**：
+```bash
+# 檢查 order endpoint 限流器
+curl http://localhost:8080/actuator/ratelimiters | jq '.rateLimiters.order'
+
+# 預期輸出：
+{
+  "availablePermissions": 3,      # ← 可用配額
+  "numberOfWaitingThreads": 0
+}
+
+# 檢查 coffee endpoint 限流器
+curl http://localhost:8080/actuator/ratelimiters | jq '.rateLimiters.coffee'
+```
+
+**Rate Limiter 配置**：
+```properties
+# order endpoint: 每30秒最多3個請求
+resilience4j.ratelimiter.instances.order.limit-for-period=3
+resilience4j.ratelimiter.instances.order.limit-refresh-period=30000
+
+# coffee endpoint: 每30秒最多5個請求
+resilience4j.ratelimiter.instances.coffee.limit-for-period=5
+resilience4j.ratelimiter.instances.coffee.limit-refresh-period=30000
+```
+
+**觸發限流時的錯誤**：
+```log
+io.github.resilience4j.ratelimiter.RequestNotPermitted: 
+RateLimiter 'order' does not permit further calls
+```
+
+**解決方案**：
+- 等待30秒讓配額重置
+- 或增加 `limit-for-period` 值（開發環境）
+
+### Redis 快取檢查
+
+```bash
+# 連接 Redis
+docker exec -it final-spring-course-redis-final-spring-course-1 redis-cli
+
+# 查看快取的咖啡資料
+127.0.0.1:6379> KEYS CoffeeCache::*
+1) "CoffeeCache::SimpleKey []"
+
+# 查看TTL
+127.0.0.1:6379> TTL "CoffeeCache::SimpleKey []"
+(integer) 59  # 剩餘秒數
+
+# 刪除快取（強制重新載入）
+127.0.0.1:6379> DEL "CoffeeCache::SimpleKey []"
+```
+
+### 日誌分析
+
+```bash
+# 查看完整日誌
+docker logs -f final-spring-course-final-waiter-service-1
+
+# 過濾訂單處理
+docker logs final-spring-course-final-waiter-service-1 | grep "Order"
+
+# 過濾限流事件
+docker logs final-spring-course-final-waiter-service-1 | grep "RateLimiter"
+
+# 過濾 SQL 查詢（檢查快取是否生效）
+docker logs final-spring-course-final-waiter-service-1 | grep "Hibernate:"
+```
+
 ## References
 
 - [Micrometer Tracing Documentation](https://micrometer.io/docs/tracing)
