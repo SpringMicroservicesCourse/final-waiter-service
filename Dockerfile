@@ -1,4 +1,4 @@
-FROM openjdk:21
+FROM eclipse-temurin:21-jre
 EXPOSE 8080
 ARG JAR_FILE
 ADD target/${JAR_FILE} /final-waiter-service.jar
